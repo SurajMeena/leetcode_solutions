@@ -5,46 +5,52 @@
  */
 
 // @lc code=start
+
 class Solution
 {
 public:
     int rowDir[4] = {0, 1, 0, -1};
     int colDir[4] = {1, 0, -1, 0};
-
-    bool isValidCell(int i, int j, int m, int n, vector<vector<int>> &visited)
+    vector<vector<int>> updateMatrix(vector<vector<int>> &matrix)
     {
-        if ((i >= m or j >= n or i < 0 or j < 0) or visited[i][j])
-            return false;
-        return true;
-    }
-    int dfs(int i, int j, vector<vector<int>> mat, vector<vector<int>> &visited, vector<vector<int>> &ans)
-    {
-        if (isValidCell(i, j, mat.size(), mat[0].size(), visited) and mat[i][j] == 0)
-            return ans[i][j] = 0;
-        else if (!isValidCell(i, j, mat.size(), mat[0].size(), visited))
-            return 10001;
-        visited[i][j] = 1;
-        int dist = 10001;
-        for (int k = 0; k < 4; k++)
+        int rows = matrix.size();
+        if (rows == 0)
+            return matrix;
+        int cols = matrix[0].size();
+        vector<vector<int>> dist(rows, vector<int>(cols, -1));
+        queue<pair<int, int>> q;
+        for (int i = 0; i < rows; i++)
         {
-            dist = min(dist, (ans[i][j] == -1 ? dfs(i + rowDir[k], j + colDir[k], mat, visited, ans) : ans[i][j]) + 1);
-        }
-        visited[i][j] = 0;
-        return ans[i][j] = dist;
-    }
-    vector<vector<int>> updateMatrix(vector<vector<int>> &mat)
-    {
-        vector<vector<int>> ans(mat.size(), vector<int>(mat[0].size(), -1));
-        vector<vector<int>> visited(mat.size(), vector<int>(mat[0].size(), 0));
-        for (int i = 0; i < mat.size(); i++)
-        {
-            for (int j = 0; j < mat[i].size(); j++)
+            for (int j = 0; j < cols; j++)
             {
-                if (ans[i][j] == -1)
-                    dfs(i, j, mat, visited, ans);
+                if (matrix[i][j] == 0)
+                {
+                    dist[i][j] = 0;
+                    q.push({i, j}); // Put all 0s in the queue.
+                }
             }
         }
-        return ans;
+
+        int dir[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        while (!q.empty())
+        {
+            pair<int, int> curr = q.front();
+            q.pop();
+            for (int i = 0; i < 4; i++)
+            {
+                int new_r = curr.first + dir[i][0], new_c = curr.second + dir[i][1];
+                if (new_r >= 0 && new_c >= 0 && new_r < rows && new_c < cols)
+                {
+                    if (dist[new_r][new_c] == -1)
+                    {
+                        dist[new_r][new_c] = dist[curr.first][curr.second] + 1;
+                        q.push({new_r, new_c});
+                    }
+                }
+            }
+        }
+        return dist;
     }
 };
+
 // @lc code=end
