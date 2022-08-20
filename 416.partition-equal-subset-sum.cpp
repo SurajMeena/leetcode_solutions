@@ -8,34 +8,32 @@
 class Solution
 {
 public:
-    bool recurse(int currSum, int currInd, vector<int> &nums, int totalSum)
-    {
-        if (totalSum - currSum == currSum)
-        {
-            // cout << currSum << " Here it got returned true" << endl;
-            return true;
-        }
-        else if (currInd >= nums.size())
-        {
-            // cout << currInd << " " << nums.size() << endl;
-            // cout << currSum << " Here it exceeded arr length" << endl;
-            return false;
-        }
-        // else
-        // cout << currSum << endl;
-        for (int i = currInd; i < nums.size(); i++)
-        {
-            if (recurse(currSum + nums[i], i + 1, nums, totalSum) or recurse(currSum, i + 1, nums, totalSum))
-                return true;
-        }
-        return false;
-    }
     bool canPartition(vector<int> &nums)
     {
-        // try to form all possible combinations through recursion
-        // and keep track of their sum rather than the combination itself
-        int totalSum = accumulate(nums.begin(), nums.end(), 0);
-        return recurse(0, 0, nums, totalSum);
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if (sum % 2 != 0)
+            return false;
+        int target = sum / 2;
+        vector<vector<int>> dp(nums.size() + 1, vector<int>(target + 1, 0));
+        for (int i = 0; i < nums.size(); i++)
+        {
+            dp[i][0] = 1;
+        }
+        for (int j = 1; j < target; j++)
+        {
+            dp[0][j] = false;
+        }
+        for (int i = 1; i <= nums.size(); i++)
+        {
+            for (int j = 1; j <= target; j++)
+            {
+                if (nums[i - 1] > j)
+                    dp[i][j] = dp[i - 1][j];
+                else
+                    dp[i][j] = dp[i - 1][j] or dp[i - 1][j - nums[i - 1]];
+            }
+        }
+        return dp[nums.size()][target];
     }
 };
 // @lc code=end
